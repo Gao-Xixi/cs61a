@@ -23,6 +23,15 @@ def roll_dice(num_rolls, dice=six_sided):
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
+    i, sum = 0, 0
+    while i < num_rolls:
+        point = dice()
+        if point != 1:
+            sum += point
+        else:
+            sum = 1
+        i += 1
+    return sum
     # END PROBLEM 1
 
 
@@ -37,11 +46,15 @@ def free_bacon(score):
     # Trim pi to only (score + 1) digit(s)
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    last = pi // pow(10, 100 - score)
+    pi = last
     # END PROBLEM 2
-
+    # print(pi % 10 + 3)
     return pi % 10 + 3
-
-
+# free_bacon(0)
+# free_bacon(1)
+# free_bacon(2)
+# free_bacon(80)
 def take_turn(num_rolls, opponent_score, dice=six_sided):
     """Simulate a turn rolling NUM_ROLLS dice, which may be 0 (Free Bacon).
     Return the points scored for the turn by the current player.
@@ -57,9 +70,16 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    if num_rolls == 0:
+        return free_bacon(opponent_score)
+    else:
+        return roll_dice(num_rolls, dice)
     # END PROBLEM 3
-
-
+#Test of problem3
+# print(take_turn(2, 0, make_test_dice(4, 5, 1)))
+# print(take_turn(3, 0, make_test_dice(4, 6, 1)))
+# print(take_turn(0, 2))
+# print(take_turn(0, 0))
 def extra_turn(player_score, opponent_score):
     """Return whether the player gets an extra turn."""
     return (pig_pass(player_score, opponent_score) or
@@ -79,7 +99,29 @@ def swine_align(player_score, opponent_score):
     """
     # BEGIN PROBLEM 4a
     "*** YOUR CODE HERE ***"
+    if player_score == 0 or opponent_score == 0:
+        return False
+    gcd = 1
+    final_gcd = 1
+    while gcd <= min(player_score, opponent_score):
+        if player_score % gcd == 0 and  opponent_score % gcd == 0:
+            final_gcd = gcd
+        gcd += 1
+
+    if final_gcd < 10:
+        return False
+    else:
+        return True
+
     # END PROBLEM 4a
+# print(swine_align(2, 4))
+# print(swine_align(11, 22))
+# print(swine_align(36, 24))
+# print(swine_align(27, 13))
+# print(swine_align(23, 22))
+# print(swine_align(15, 45))
+# print(swine_align(15, 0))
+
 
 
 def pig_pass(player_score, opponent_score):
@@ -101,6 +143,11 @@ def pig_pass(player_score, opponent_score):
     """
     # BEGIN PROBLEM 4b
     "*** YOUR CODE HERE ***"
+    d = opponent_score -player_score
+    if player_score >= opponent_score or d >= 3:
+        return False
+    else:
+        return True
     # END PROBLEM 4b
 
 
@@ -140,6 +187,29 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    """import hog
+>>> always_three = hog.make_test_dice(3)
+>>> always = hog.always_roll
+>>> #
+>>> # Play function stops at goal
+>>> s0, s1 = hog.play(always(5), always(3), score0=91, score1=10, dice=always_three)
+>>> s0"""
+    who = 0
+    while score0 < goal and score1 < goal:
+        if who == 0:
+            score0 += take_turn(strategy0(score0,score1), score1, dice)
+            if extra_turn(score0,score1):
+                who = who
+            else:
+                who = other(who)
+        elif who == 1:
+            score1 += take_turn(strategy1(score1, score0), score0, dice)
+            if extra_turn(score1,score0):
+                who = who
+            else:
+                who = other(who)
+
+
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
@@ -374,3 +444,36 @@ def run(*args):
 
     if args.run_experiments:
         run_experiments()
+
+
+# Test for problem5 play()
+"""
+test 1
+always_three = make_test_dice(3)
+always = always_roll
+# Play function stops at goal
+
+s0, s1 = play(always(5), always(3), 91, 10, always_three)
+print(s0,s1)
+
+test2
+import hog
+always_three = hog.make_test_dice(3)
+always = hog.always_roll
+
+# Goal score is not hardwired
+s0, s1 = hog.play(always(5), always(5), goal=10, dice=always_three)
+print(s0,s1)
+
+test3
+import hog
+always_three = hog.make_test_dice(3)
+always_seven = hog.make_test_dice(7)
+
+# Use strategies
+# We recommend working this out turn-by-turn on a piece of paper (use Python for difficult calculations).
+strat0 = lambda score, opponent: opponent % 10
+strat1 = lambda score, opponent: max((score // 10) - 4, 0)
+s0, s1 = hog.play(strat0, strat1, score0=71, score1=80, dice=always_seven)
+print(s0,s1)
+"""
