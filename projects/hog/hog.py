@@ -51,10 +51,7 @@ def free_bacon(score):
     # END PROBLEM 2
     # print(pi % 10 + 3)
     return pi % 10 + 3
-# free_bacon(0)
-# free_bacon(1)
-# free_bacon(2)
-# free_bacon(80)
+
 def take_turn(num_rolls, opponent_score, dice=six_sided):
     """Simulate a turn rolling NUM_ROLLS dice, which may be 0 (Free Bacon).
     Return the points scored for the turn by the current player.
@@ -75,11 +72,7 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     else:
         return roll_dice(num_rolls, dice)
     # END PROBLEM 3
-#Test of problem3
-# print(take_turn(2, 0, make_test_dice(4, 5, 1)))
-# print(take_turn(3, 0, make_test_dice(4, 6, 1)))
-# print(take_turn(0, 2))
-# print(take_turn(0, 0))
+
 def extra_turn(player_score, opponent_score):
     """Return whether the player gets an extra turn."""
     return (pig_pass(player_score, opponent_score) or
@@ -114,13 +107,7 @@ def swine_align(player_score, opponent_score):
         return True
 
     # END PROBLEM 4a
-# print(swine_align(2, 4))
-# print(swine_align(11, 22))
-# print(swine_align(36, 24))
-# print(swine_align(27, 13))
-# print(swine_align(23, 22))
-# print(swine_align(15, 45))
-# print(swine_align(15, 0))
+
 
 
 
@@ -143,7 +130,7 @@ def pig_pass(player_score, opponent_score):
     """
     # BEGIN PROBLEM 4b
     "*** YOUR CODE HERE ***"
-    d = opponent_score -player_score
+    d = opponent_score - player_score
     if player_score >= opponent_score or d >= 3:
         return False
     else:
@@ -340,7 +327,7 @@ def always_roll(n):
     return strategy
 
 
-def make_averaged(original_function, trials_count=1000):
+def make_averaged(original_function, trials_count=10):
     """Return a function that returns the average value of ORIGINAL_FUNCTION
     when called.
 
@@ -354,6 +341,17 @@ def make_averaged(original_function, trials_count=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    f, n = original_function, trials_count
+
+    def new_Func(*args):
+        sum, i =0, 0
+        while i < n:
+            sum += f(*args)
+            i+=1
+        result = sum / n
+        print(result)
+        return result
+    return new_Func
     # END PROBLEM 8
 
 
@@ -368,6 +366,18 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+
+    k, max,max_num = 1, 0, 1
+    while k <= 10:
+        Func_roll_dice = make_averaged(roll_dice, trials_count)
+        avg = Func_roll_dice(k,dice)
+        if avg > max:
+           max, max_num = avg, k
+        k+=1
+
+    return max_num
+
+
     # END PROBLEM 9
 
 
@@ -417,7 +427,11 @@ def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    zero_roll = free_bacon(opponent_score)
+    if zero_roll >= cutoff:
+        return 0
+    else:
+        return num_rolls  # Replace this statement
     # END PROBLEM 10
 
 
@@ -427,7 +441,12 @@ def extra_turn_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    if extra_turn(score, opponent_score):
+        return 0
+    else:
+        return bacon_strategy(score, opponent_score, cutoff, num_rolls)
+
+     # Replace this statement
     # END PROBLEM 11
 
 
@@ -462,34 +481,3 @@ def run(*args):
         run_experiments()
 
 
-# Test for problem5 play()
-"""
-test 1
-always_three = make_test_dice(3)
-always = always_roll
-# Play function stops at goal
-
-s0, s1 = play(always(5), always(3), 91, 10, always_three)
-print(s0,s1)
-
-test2
-import hog
-always_three = hog.make_test_dice(3)
-always = hog.always_roll
-
-# Goal score is not hardwired
-s0, s1 = hog.play(always(5), always(5), goal=10, dice=always_three)
-print(s0,s1)
-
-test3
-import hog
-always_three = hog.make_test_dice(3)
-always_seven = hog.make_test_dice(7)
-
-# Use strategies
-# We recommend working this out turn-by-turn on a piece of paper (use Python for difficult calculations).
-strat0 = lambda score, opponent: opponent % 10
-strat1 = lambda score, opponent: max((score // 10) - 4, 0)
-s0, s1 = hog.play(strat0, strat1, score0=71, score1=80, dice=always_seven)
-print(s0,s1)
-"""
