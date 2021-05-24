@@ -208,7 +208,8 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
                 who = who
             else:
                 who = other(who)
-
+        say = say(score0,score1)
+        # both(say_scores, announce_lead_changes())(score0,score1)
 
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
@@ -298,6 +299,21 @@ def announce_highest(who, last_score=0, running_high=0):
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    def say(score0, score1):
+        temp = last_score
+        last_highest = running_high
+        if who == 0:
+            diff, score = score0 - temp, score0
+            if diff > last_highest:
+                last_highest = diff
+                print(last_highest, "point(s)! The most yet for Player 0")
+        elif who == 1:
+            diff, score = score1 - temp, score1
+            if diff > last_highest:
+                last_highest = diff
+                print(last_highest, "point(s)! The most yet for Player 1")
+        return announce_highest(who, score, last_highest)
+    return say
     # END PROBLEM 7
 
 
