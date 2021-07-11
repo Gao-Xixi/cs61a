@@ -23,6 +23,12 @@ def num_eights(x):
     True
     """
     "*** YOUR CODE HERE ***"
+    if x < 10 and x == 8:
+        return 1
+    elif x < 10:
+        return 0
+    else:
+        return  num_eights(x//10) +  num_eights(x % 10)
 
 
 def pingpong(n):
@@ -58,7 +64,17 @@ def pingpong(n):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    def dir(n):
+        if n <= 8:
+            return 1
+        elif num_eights(n - 1) > 0 or (n - 1) % 8 == 0:
+            return - dir(n-1)
+        else:
+            return dir(n-1)
+    if n <= 8:
+        return n
+    else:
+        return pingpong(n-1) + dir(n)
 
 def missing_digits(n):
     """Given a number a that is in sorted, increasing order,
@@ -88,6 +104,15 @@ def missing_digits(n):
     True
     """
     "*** YOUR CODE HERE ***"
+    if n < 10:
+        return 0
+    if n < 100:
+        if n % 10 == n // 10:
+            return 0
+        return n % 10 - n // 10 - 1
+
+    else:
+        return missing_digits(n // 10) + missing_digits(n % 100)
 
 
 def next_largest_coin(coin):
@@ -106,8 +131,17 @@ def next_largest_coin(coin):
         return 10
     elif coin == 10:
         return 25
-
-
+    else:
+        return
+def next_smaller_num(coin):
+    if coin == 5:
+        return 1
+    elif coin == 10:
+        return 5
+    elif coin == 25:
+        return 10
+    else:
+        return
 def count_coins(total):
     """Return the number of ways to make change for total using coins of value of 1, 5, 10, 25.
     >>> count_coins(15)
@@ -124,7 +158,50 @@ def count_coins(total):
     True
     """
     "*** YOUR CODE HERE ***"
+    # Copy online
+    # So hard
+    def count(S, m, total):
 
+        # If n is 0 then there is 1
+        # solution (do not include any coin)
+        if (total == 0):
+            return 1
+
+        # If n is less than 0 then no
+        # solution exists
+        if (total < 0):
+            return 0;
+
+        # If there are no coins and n
+        # is greater than 0, then no
+        # solution exist
+        if (m <= 0 and total >= 1):
+            return 0
+
+        # count is sum of solutions (i)
+        # including S[m-1] (ii) excluding S[m-1]
+        return count(S, m - 1, total) + count(S, m, total - S[m - 1]);
+
+    S = [1, 5, 10, 25]
+    m = len(S)
+    return count(S,m,total)
+
+
+    # def helper(total,coin):
+    #     if total < coin:
+    #         return 0
+    #     if total == 0:
+    #         return 1
+    #     if total < 0:
+    #         return 0
+    #     if coin == 1:
+    #         return 1
+    #     else:
+    #         return helper(total - coin, coin) + helper(total - coin, next_smaller_num(coin))
+    #
+    #
+    # return helper(total,1) + helper(total,5) + helper(total,10)  + helper(total,25)
+count_coins(15)
 
 from operator import sub, mul
 
@@ -138,5 +215,7 @@ def make_anonymous_factorial():
     >>> check(HW_SOURCE_FILE, 'make_anonymous_factorial', ['Assign', 'AugAssign', 'FunctionDef', 'Recursion'])
     True
     """
-    return 'YOUR_EXPRESSION_HERE'
+    return lambda b: (lambda a, b: a(a, b))(lambda a, b: b*a(a, b-1) if b > 0 else 1,b)
+
+
 
