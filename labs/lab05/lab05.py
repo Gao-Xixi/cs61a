@@ -1,3 +1,6 @@
+import math
+
+
 def couple(s, t):
     """Return a list of two-element lists in which the i-th element is [s[i], t[i]].
 
@@ -12,9 +15,12 @@ def couple(s, t):
     """
     assert len(s) == len(t)
     "*** YOUR CODE HERE ***"
+    return [[s[i], t[i]] for i in range(len(s))]
 
 
 from math import sqrt
+
+
 def distance(city_a, city_b):
     """
     >>> city_a = make_city('city_a', 0, 1)
@@ -27,6 +33,24 @@ def distance(city_a, city_b):
     5.0
     """
     "*** YOUR CODE HERE ***"
+    return math.sqrt((get_lat(city_a) - get_lat(city_b)) ** 2 + ((get_lon(city_a) - get_lon(city_b)) ** 2))
+
+
+def make_city(s, lat, lon):
+    return [s, lat, lon]
+
+
+def get_name(c):
+    return c[0]
+
+
+def get_lat(c):
+    return c[1]
+
+
+def get_lon(c):
+    return c[2]
+
 
 def closer_city(lat, lon, city_a, city_b):
     """
@@ -44,6 +68,12 @@ def closer_city(lat, lon, city_a, city_b):
     'Bucharest'
     """
     "*** YOUR CODE HERE ***"
+    city = make_city("o", lat, lon)
+    if distance(city, city_a) > distance(city, city_b):
+        return get_name(city_b)
+    else:
+        return get_name(city_a)
+
 
 def check_city_abstraction():
     """
@@ -82,9 +112,10 @@ def make_city(name, lat, lon):
     1
     """
     if change_abstraction.changed:
-        return {"name" : name, "lat" : lat, "lon" : lon}
+        return {"name": name, "lat": lat, "lon": lon}
     else:
         return [name, lat, lon]
+
 
 def get_name(city):
     """
@@ -97,6 +128,7 @@ def get_name(city):
     else:
         return city[0]
 
+
 def get_lat(city):
     """
     >>> city = make_city('Berkeley', 0, 1)
@@ -107,6 +139,7 @@ def get_lat(city):
         return city["lat"]
     else:
         return city[1]
+
 
 def get_lon(city):
     """
@@ -119,8 +152,10 @@ def get_lon(city):
     else:
         return city[2]
 
+
 def change_abstraction(change):
     change_abstraction.changed = change
+
 
 change_abstraction.changed = False
 
@@ -143,6 +178,13 @@ def berry_finder(t):
     True
     """
     "*** YOUR CODE HERE ***"
+    find = False
+    if label(t) == 'berry':
+        find = True
+    else:
+        for b in branches(t):
+            find = find or berry_finder(b)
+    return find
 
 
 def sprout_leaves(t, leaves):
@@ -179,6 +221,14 @@ def sprout_leaves(t, leaves):
           2
     """
     "*** YOUR CODE HERE ***"
+    if is_leaf(t):
+        brs = [tree(item) for item in leaves]
+        tr = tree(label(t), brs)
+        return tr
+    else:
+        rs = tree(label(t), [sprout_leaves(b, leaves) for b in branches(t)])
+        return rs
+
 
 # Abstraction tests for sprout_leaves and berry_finder
 def check_abstraction():
@@ -237,7 +287,7 @@ def coords(fn, seq, lower, upper):
     [[-2, 4], [1, 1], [3, 9]]
     """
     "*** YOUR CODE HERE ***"
-    return ______
+    return [[x, fn(x)] for x in seq if fn(x) >= lower and fn(x) <= upper]
 
 
 def riffle(deck):
@@ -250,7 +300,7 @@ def riffle(deck):
     [0, 10, 1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17, 8, 18, 9, 19]
     """
     "*** YOUR CODE HERE ***"
-    return _______
+    return [deck[i//2] if i%2 == 0 else deck[(i + len(deck)-1)//2 ] for i in range(len(deck))]
 
 
 def add_trees(t1, t2):
@@ -290,6 +340,33 @@ def add_trees(t1, t2):
     """
     "*** YOUR CODE HERE ***"
 
+    # result = list(zip(t1, t2))
+    # if len(result) == 0
+    # if len(result) == 1:
+    #     if is_leaf(t1):
+    #         return (tree(label(t1) + label(t2), [branches(t2)]))
+    #     else:
+    #         return (tree(label(t1) + label(t2), [branches(t1)]))
+    #
+    # else:
+    #     zip(branches(t1),branches(t2))
+    #         for b2 in branches(t2):
+    #             return add_trees(b1,b2)
+# / copy online
+    if not t1:
+        return t2
+    if not t2:
+        return t1
+    new_label = label(t1) + label(t2)
+    t1_children, t2_children = branches(t1), branches(t2)
+    length_t1, length_t2 = len(t1_children), len(t2_children)
+    if length_t1 < length_t2:
+        t1_children += [None for _ in range(length_t1, length_t2)]
+    elif len(t1_children) > len(t2_children):
+        t2_children += [None for _ in range(length_t2, length_t1)]
+    return tree(new_label, [add_trees(child1, child2) for child1, child2 in zip(t1_children, t2_children)])
+
+
 
 def build_successors_table(tokens):
     """Return a dictionary: keys are words; values are lists of successors.
@@ -309,10 +386,12 @@ def build_successors_table(tokens):
     prev = '.'
     for word in tokens:
         if prev not in table:
-            "*** YOUR CODE HERE ***"
-        "*** YOUR CODE HERE ***"
+            table[prev] = [word]
+        else:
+            table[prev] += [word]
         prev = word
     return table
+
 
 def construct_sent(word, table):
     """Prints a random sentence starting with word, sampling from
@@ -327,8 +406,11 @@ def construct_sent(word, table):
     import random
     result = ''
     while word not in ['.', '!', '?']:
-        "*** YOUR CODE HERE ***"
+        next = random.choice(table[word])
+        result += word + " "
+        word = next
     return result.strip() + word
+
 
 def shakespeare_tokens(path='shakespeare.txt', url='http://composingprograms.com/shakespeare.txt'):
     """Return the words of Shakespeare's plays as a list."""
@@ -340,6 +422,7 @@ def shakespeare_tokens(path='shakespeare.txt', url='http://composingprograms.com
         shakespeare = urlopen(url)
         return shakespeare.read().decode(encoding='ascii').split()
 
+
 # Uncomment the following two lines
 # tokens = shakespeare_tokens()
 # table = build_successors_table(tokens)
@@ -347,7 +430,6 @@ def shakespeare_tokens(path='shakespeare.txt', url='http://composingprograms.com
 def random_sent():
     import random
     return construct_sent(random.choice(table['.']), table)
-
 
 
 # Tree ADT
@@ -363,6 +445,7 @@ def tree(label, branches=[]):
             assert is_tree(branch), 'branches must be trees'
         return [label] + list(branches)
 
+
 def label(tree):
     """Return the label value of a tree."""
     if change_abstraction.changed:
@@ -370,12 +453,14 @@ def label(tree):
     else:
         return tree[0]
 
+
 def branches(tree):
     """Return the list of branches of the given tree."""
     if change_abstraction.changed:
         return tree['branches']
     else:
         return tree[1:]
+
 
 def is_tree(tree):
     """Returns True if the given tree is a tree, and False otherwise."""
@@ -394,14 +479,17 @@ def is_tree(tree):
                 return False
         return True
 
+
 def is_leaf(tree):
     """Returns True if the given tree's list of branches is empty, and False
     otherwise.
     """
     return not branches(tree)
 
+
 def change_abstraction(change):
     change_abstraction.changed = change
+
 
 change_abstraction.changed = False
 
@@ -429,6 +517,7 @@ def print_tree(t, indent=0):
     for b in branches(t):
         print_tree(b, indent + 1)
 
+
 def copy_tree(t):
     """Returns a copy of t. Only for testing purposes.
 
@@ -440,3 +529,16 @@ def copy_tree(t):
     """
     return tree(label(t), [copy_tree(b) for b in branches(t)])
 
+
+print(add_trees(tree(2), tree(3, [tree(4), tree(5)])))
+numbers = tree(1,
+           [tree(2,
+                     [tree(3),
+                     tree(4)]),
+                tree(5,
+                    [tree(6,
+                          [tree(7)]),
+                     tree(8)])])
+print(add_trees(numbers, numbers))
+
+print(add_trees(tree(2, [tree(3)]), tree(2, [tree(3), tree(4)])))
